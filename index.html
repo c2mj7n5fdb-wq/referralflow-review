@@ -103,8 +103,13 @@ textarea { min-height: 80px; }
       </div>
 
       <div id="referral-form-area" style="display: none;">
+        <button class="btn btn-primary" id="pick-contacts-btn" onclick="pickContacts()" style="margin-bottom: 16px; background: linear-gradient(135deg, #2563eb, #0ea5e9);">
+          📱 Choose from Contacts (up to 5)
+        </button>
+        <p style="text-align: center; color: #94a3b8; font-size: 13px; margin: 0 0 12px 0;">— or enter manually —</p>
         <div id="referral-list"></div>
         <button class="add-more" onclick="addReferralRow()">+ Add another friend</button>
+        <div id="selected-contacts" style="margin-bottom: 16px;"></div>
         <button class="btn btn-primary" id="submit-referrals" onclick="submitReferrals()">Send Referrals</button>
       </div>
       <button class="btn btn-outline" onclick="showFinalStep()">Skip</button>
@@ -310,11 +315,68 @@ function toggleReferralForm() {
   document.getElementById('referral-form-area').style.display = checked ? 'block' : 'none';
 }
 
+let pickedContacts = [];
+
+async function pickContacts() {
+  // Check if Contact Picker API is supported
+  if ('contacts' in navigator && 'ContactsManager' in window) {
+    try {
+      const contacts = await navigator.contacts.select(
+        ['name', 'tel'],
+        { multiple: true }
+      );
+      // Limit to 5
+      pickedContacts = contacts.slice(0, 5).map(c => ({
+        name: (c.name && c.name[0]) || '',
+        phone: (c.tel && c.tel[0]) || ''
+      })).filter(c => c.name && c.phone);
+      
+      displayPickedContacts();
+    } catch (err) {
+      if (err.name !== 'InvalidStateError') {
+        alert('Could not access contacts. Please enter them manually below.');
+      }
+    }
+  } else {
+    // Fallback: show a friendly message
+    alert('Contact picker is not supported on this browser. Please enter names manually below.');
+    document.getElementById('pick-contacts-btn').style.display = 'none';
+  }
+}
+
+function displayPickedContacts() {
+  const container = document.getElementById('selected-contacts');
+  if (pickedContacts.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = '<p style="font-weight:600; color:#1e3a5f; margin-bottom:8px;">Selected contacts:</p>' +
+    pickedContacts.map((c, i) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#f0f7ff; border-radius:8px; padding:10px 12px; margin-bottom:6px;">
+        <span style="font-weight:500;">${c.name}</span>
+        <span style="color:#64748b; font-size:13px;">${c.phone}</span>
+        <button onclick="removePickedContact(${i})" style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+    `).join('');
+}
+
+function removePickedContact(i) {
+  pickedContacts.splice(i, 1);
+  displayPickedContacts();
+}
+
 function showReferralStep() {
   const list = document.getElementById('referral-list');
   list.innerHTML = '';
+  pickedContacts = [];
+  document.getElementById('selected-contacts').innerHTML = '';
   document.getElementById('consent-check').checked = false;
   document.getElementById('referral-form-area').style.display = 'none';
+  // Show/hide contact picker button based on support
+  const pickBtn = document.getElementById('pick-contacts-btn');
+  if (!('contacts' in navigator && 'ContactsManager' in window)) {
+    pickBtn.style.display = 'none';
+  }
   addReferralRow();
   showStep('step-referral');
 }
@@ -332,8 +394,9 @@ function addReferralRow() {
 }
 
 async function submitReferrals() {
+  // Combine picked contacts + manually entered ones
   const rows = document.querySelectorAll('.referral-entry');
-  const referrals = [];
+  const referrals = [...pickedContacts];
   rows.forEach(row => {
     const name = row.querySelector('.ref-name').value.trim();
     const phone = row.querySelector('.ref-phone').value.trim();
