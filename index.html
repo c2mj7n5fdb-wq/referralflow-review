@@ -2,462 +2,331 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Leave a Review</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
-.container { max-width: 480px; margin: 0 auto; padding: 24px 16px; }
-.card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-h1 { font-size: 24px; margin-bottom: 4px; }
-.subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
-.stars { display: flex; gap: 8px; margin: 16px 0; justify-content: center; }
-.star { font-size: 40px; cursor: pointer; transition: transform 0.15s; user-select: none; }
-.star:hover { transform: scale(1.2); }
-.star.active { transform: scale(1.1); }
-label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; margin-top: 16px; }
-textarea, input[type="text"], input[type="tel"] { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 15px; font-family: inherit; resize: vertical; }
-textarea { min-height: 80px; }
-.recommend-row { display: flex; gap: 12px; margin-top: 8px; }
-.recommend-btn { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 15px; cursor: pointer; text-align: center; transition: all 0.15s; }
-.recommend-btn.selected { border-color: #2563eb; background: #eff6ff; color: #2563eb; font-weight: 600; }
-.btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-.btn-primary { background: #2563eb; color: #fff; }
-.btn-primary:hover { background: #1d4ed8; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-outline { background: #fff; color: #2563eb; border: 2px solid #2563eb; margin-top: 10px; }
-.review-sites { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
-.site-btn { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 15px; cursor: pointer; text-decoration: none; color: #1e293b; transition: background 0.15s; }
-.site-btn:hover { background: #f1f5f9; }
-.site-icon { font-size: 24px; }
-.referral-entry { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-.referral-entry input { flex: 1; }
-.remove-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #ef4444; padding: 4px 8px; }
-.add-more { background: none; border: none; color: #2563eb; font-size: 14px; cursor: pointer; margin-top: 4px; font-weight: 500; }
-.extra-link { display: block; text-align: center; padding: 16px; background: #eff6ff; border-radius: 8px; color: #2563eb; text-decoration: none; font-weight: 600; margin-top: 16px; }
-.hidden { display: none; }
-.loading { text-align: center; padding: 40px; color: #64748b; }
-.error { background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
-.success-icon { font-size: 64px; text-align: center; margin-bottom: 16px; }
-.thank-you { text-align: center; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#e0edff 0%,#f8faff 50%,#fff5f0 100%);color:#1e293b;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+.container{max-width:440px;margin:0 auto;padding:24px 16px;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:center}
+.screen{display:none;animation:fadeUp .4s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#fff;border-radius:20px;padding:28px 24px;box-shadow:0 4px 24px rgba(37,99,235,.08),0 1px 4px rgba(0,0,0,.04)}
+h1{font-size:22px;font-weight:700;text-align:center;line-height:1.3}
+.subtitle{color:#64748b;font-size:15px;text-align:center;margin-top:6px;line-height:1.5}
+.emoji-hero{font-size:56px;text-align:center;margin-bottom:12px}
+
+/* Stars */
+.stars{display:flex;gap:6px;justify-content:center;margin:20px 0 8px}
+.star{font-size:44px;cursor:pointer;transition:transform .15s;user-select:none;-webkit-tap-highlight-color:transparent;line-height:1;padding:4px}
+.star:active{transform:scale(1.3)}
+.star.on{color:#f59e0b}
+.star.off{color:#d1d5db}
+
+/* Inputs */
+label.field-label{display:block;font-weight:600;font-size:14px;margin-bottom:6px;margin-top:18px;color:#334155}
+textarea,input[type="text"],input[type="tel"]{width:100%;border:2px solid #e2e8f0;border-radius:12px;padding:14px;font-size:16px;font-family:inherit;resize:none;transition:border-color .2s;-webkit-appearance:none}
+textarea:focus,input:focus{outline:none;border-color:#60a5fa}
+textarea{min-height:80px}
+
+/* Recommend */
+.recommend-row{display:flex;gap:12px;margin-top:10px}
+.rec-btn{flex:1;padding:14px;border:2px solid #e2e8f0;border-radius:14px;background:#fff;font-size:16px;cursor:pointer;text-align:center;transition:all .2s;-webkit-tap-highlight-color:transparent;font-weight:500}
+.rec-btn.sel{border-color:#2563eb;background:#eff6ff;color:#2563eb;font-weight:700}
+.rec-btn:active{transform:scale(.97)}
+
+/* Buttons */
+.btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;min-height:52px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3);margin-top:22px}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:#fff;color:#2563eb;border:2px solid #2563eb;margin-top:10px}
+.btn-skip{background:transparent;color:#94a3b8;font-size:15px;font-weight:500;margin-top:14px;min-height:44px}
+
+/* Review sites */
+.sites{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.site-link{display:flex;align-items:center;gap:12px;padding:16px;border:2px solid #e2e8f0;border-radius:14px;background:#fff;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;color:#1e293b;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.site-link:active{transform:scale(.97);background:#f8fafc}
+.site-link .icon{font-size:28px;flex-shrink:0}
+
+/* Consent */
+.consent-box{background:#f0f7ff;border:2px solid #bfdbfe;border-radius:14px;padding:16px;margin:18px 0}
+.consent-box p{font-size:13px;color:#475569;line-height:1.6;margin-bottom:12px}
+.consent-label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#1e3a5f;line-height:1.4}
+.consent-label input[type="checkbox"]{width:22px;height:22px;margin-top:1px;accent-color:#2563eb;flex-shrink:0;border-radius:6px}
+
+/* Contact picker area */
+.picker-area{margin-top:16px}
+.manual-rows{margin-top:12px}
+.manual-row{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.manual-row input{flex:1;padding:12px;font-size:15px}
+.manual-row .x-btn{width:36px;height:36px;border-radius:50%;border:none;background:#fee2e2;color:#ef4444;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.or-divider{text-align:center;color:#94a3b8;font-size:13px;margin:10px 0}
+
+/* Picked contacts preview */
+.picked-list{margin-top:14px}
+.picked-item{display:flex;justify-content:space-between;align-items:center;background:#f0f7ff;border-radius:10px;padding:10px 14px;margin-bottom:6px}
+.picked-item .name{font-weight:600;font-size:14px}
+.picked-item .phone{color:#64748b;font-size:13px}
+.picked-item .rm{background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer;padding:4px 8px}
+
+.privacy-note{font-size:12px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.5}
+
+/* Extra link */
+.extra-link{display:block;text-align:center;padding:16px;background:#eff6ff;border-radius:14px;color:#2563eb;text-decoration:none;font-weight:700;margin-top:16px;font-size:16px;transition:background .2s}
+.extra-link:active{background:#dbeafe}
+
+.hidden{display:none!important}
+.loading{text-align:center;padding:60px 20px;color:#64748b;font-size:16px}
+.error{background:#fef2f2;color:#dc2626;padding:14px;border-radius:14px;text-align:center;font-weight:500}
 </style>
 </head>
 <body>
 <div class="container">
   <div id="loading" class="loading">Loading...</div>
   <div id="error" class="error hidden"></div>
-  
-  <!-- Step 1: Review Form -->
-  <div id="step-review" class="hidden">
+
+  <!-- Screen 1: Survey -->
+  <div id="s1" class="screen">
     <div class="card">
-      <h1>How'd we do? 🎯</h1>
-      <p class="subtitle">Your feedback means a lot to us</p>
-      
-      <label>Rate your experience</label>
+      <div class="emoji-hero">👋</div>
+      <h1>Rate Brian's service</h1>
+      <p class="subtitle">Tap the stars — be honest!</p>
       <div class="stars" id="stars"></div>
-      
-      <label>Would you recommend us?</label>
+
+      <label class="field-label">What'd he do great? <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
+      <textarea id="note" placeholder="Anything you loved..."></textarea>
+
+      <label class="field-label">Would you recommend us?</label>
       <div class="recommend-row">
-        <button class="recommend-btn" onclick="setRecommend(true)">👍 Yes!</button>
-        <button class="recommend-btn" onclick="setRecommend(false)">👎 Not yet</button>
-      </div>
-      
-      <label>Any additional notes? (optional)</label>
-      <textarea id="note" placeholder="Tell us more..."></textarea>
-      
-      <button class="btn btn-primary" id="submit-review" onclick="submitReview()">Submit Review</button>
-    </div>
-  </div>
-  
-  <!-- Step 2: Share to review sites -->
-  <div id="step-share" class="hidden">
-    <div class="card">
-      <div class="success-icon">⭐</div>
-      <h1 style="text-align:center">Thank you!</h1>
-      <p class="subtitle" style="text-align:center">Want to spread the word? Post your review on:</p>
-      <div class="review-sites" id="review-sites"></div>
-      <button class="btn btn-outline" onclick="showReferralStep()">Skip → Next</button>
-    </div>
-  </div>
-  
-  <!-- Step 3: Refer friends -->
-  <div id="step-referral" class="hidden">
-    <div class="card">
-      <h1>Know anyone who'd love our service? 🤝</h1>
-      <p class="subtitle">Help a friend out — we'll reach out warmly</p>
-      
-      <!-- Consent Notice -->
-      <div id="consent-box" style="background: #f0f7ff; border: 2px solid #2563eb; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-        <p style="font-size: 14px; color: #1e3a5f; margin: 0 0 12px 0; text-align: center; font-weight: 600;">
-          📋 Before sharing, please confirm:
-        </p>
-        <p style="font-size: 13px; color: #334155; margin: 0 0 12px 0; text-align: center; line-height: 1.5;">
-          By entering names and contact information below, I confirm that I have permission from these individuals to share their information, and I consent to having them contacted on my behalf.
-        </p>
-        <div style="text-align: center;">
-          <label style="font-size: 15px; font-weight: 600; color: #1e3a5f; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
-            <input type="checkbox" id="consent-check" onchange="toggleReferralForm()" style="width: 20px; height: 20px; accent-color: #2563eb;">
-            I consent to share these names
-          </label>
-        </div>
+        <button class="rec-btn" data-val="yes" onclick="setRec(true)">👍 Yep!</button>
+        <button class="rec-btn" data-val="no" onclick="setRec(false)">👎 Not yet</button>
       </div>
 
-      <div id="referral-form-area" style="display: none;">
-        <button class="btn btn-primary" id="pick-contacts-btn" onclick="pickContacts()" style="margin-bottom: 16px; background: linear-gradient(135deg, #2563eb, #0ea5e9);">
-          📱 Choose from Contacts (up to 5)
-        </button>
-        <p style="text-align: center; color: #94a3b8; font-size: 13px; margin: 0 0 12px 0;">— or enter manually —</p>
-        <div id="referral-list"></div>
-        <button class="add-more" onclick="addReferralRow()">+ Add another friend</button>
-        <div id="selected-contacts" style="margin-bottom: 16px;"></div>
-        <button class="btn btn-primary" id="submit-referrals" onclick="submitReferrals()">Send Referrals</button>
-      </div>
-      <button class="btn btn-outline" onclick="showFinalStep()">Skip</button>
+      <button class="btn btn-primary" id="btn-submit" onclick="submitReview()">Submit</button>
     </div>
   </div>
-  
-  <!-- Step 4: Done + extra link -->
-  <div id="step-done" class="hidden">
-    <div class="card thank-you">
-      <div class="success-icon">🎉</div>
+
+  <!-- Screen 2: Review Sites -->
+  <div id="s2" class="screen">
+    <div class="card">
+      <div class="emoji-hero">⭐</div>
+      <h1>Thanks! Want to share your experience?</h1>
+      <p class="subtitle">A quick review helps others find us</p>
+      <div class="sites" id="sites"></div>
+      <button class="btn btn-skip" onclick="goReferrals()">Skip →</button>
+    </div>
+  </div>
+
+  <!-- Screen 3: Referrals -->
+  <div id="s3" class="screen">
+    <div class="card">
+      <div class="emoji-hero">🤝</div>
+      <h1>Want to help a friend?</h1>
+      <p class="subtitle">Pick 1–3 contacts who might need coverage</p>
+
+      <div class="consent-box">
+        <p>By sharing contacts below, I confirm I have permission from these individuals to share their info, and I consent to having them contacted on my behalf.</p>
+        <label class="consent-label">
+          <input type="checkbox" id="consent" onchange="toggleConsent()">
+          I agree
+        </label>
+      </div>
+
+      <div id="contact-area" class="picker-area hidden">
+        <button class="btn btn-primary" id="picker-btn" onclick="pickContacts()" style="margin-top:0;background:linear-gradient(135deg,#2563eb,#0ea5e9)">📱 Choose from Contacts</button>
+        <div class="or-divider" id="or-divider">— or enter manually —</div>
+        <div class="manual-rows" id="manual-rows"></div>
+
+        <div class="picked-list" id="picked-list"></div>
+
+        <button class="btn btn-primary" id="btn-send-refs" onclick="submitReferrals()">Send these to Brian</button>
+      </div>
+
+      <p class="privacy-note">🔒 We only share the names you pick — no full access to your contacts, no data sold. Opt out anytime.</p>
+      <button class="btn btn-skip" onclick="goDone()">No worries — thanks!</button>
+    </div>
+  </div>
+
+  <!-- Screen 4: Done -->
+  <div id="s4" class="screen">
+    <div class="card" style="text-align:center">
+      <div class="emoji-hero">🎉</div>
       <h1>You're awesome!</h1>
-      <p class="subtitle">Thanks for your time and feedback.</p>
+      <p class="subtitle">Thanks for your time.</p>
       <a id="extra-link" class="extra-link hidden" href="#" target="_blank"></a>
     </div>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://balgzympfreorfixmoko.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_xvwbxdUMJ9AUjag_lBPZJw_Kw6eRqwu';
+const SB_URL='https://balgzympfreorfixmoko.supabase.co';
+const SB_KEY='sb_publishable_xvwbxdUMJ9AUjag_lBPZJw_Kw6eRqwu';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
-let reviewId = null;
-let rating = 0;
-let wouldRecommend = null;
-let settings = {};
-let reviewData = null;
+let reviewId,rating=0,recommend=null,settings={},reviewData=null,picked=[];
 
-// Supabase REST helper
-async function sb(method, table, body, query = '') {
-  const url = `${SUPABASE_URL}/rest/v1/${table}${query}`;
-  const opts = {
-    method,
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'PATCH' ? 'return=representation' : (method === 'POST' ? 'return=representation' : undefined),
-    },
-  };
-  if (body) opts.body = JSON.stringify(body);
-  // Remove undefined headers
-  Object.keys(opts.headers).forEach(k => opts.headers[k] === undefined && delete opts.headers[k]);
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
+async function sb(method,table,body,q=''){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}${q}`,{method,headers:{...H,'Prefer':method==='POST'?'return=representation':undefined},body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+async function rpc(fn,p){
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:H,body:JSON.stringify(p)});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):null;
 }
 
-async function rpc(fn, params) {
-  const url = `${SUPABASE_URL}/rest/v1/rpc/${fn}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(params),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
-}
-
-async function init() {
-  // Get review ID from URL path: /review/{id} or ?id={id}
-  const pathParts = window.location.pathname.split('/');
-  reviewId = pathParts[pathParts.length - 1];
-  if (!reviewId || reviewId === 'index.html') {
-    const params = new URLSearchParams(window.location.search);
-    reviewId = params.get('id');
-  }
-  
-  if (!reviewId) {
-    showError('Invalid review link.');
-    return;
-  }
-  
-  try {
-    // Fetch review
-    const reviews = await sb('GET', 'reviews', null, `?id=eq.${reviewId}&select=*`);
-    if (!reviews || reviews.length === 0) {
-      showError('Review not found.');
-      return;
-    }
-    reviewData = reviews[0];
-    
-    // If already completed, show thank you
-    if (reviewData.completed_at) {
-      showStep('step-done');
-      await loadExtraLink();
-      return;
-    }
-    
-    // Fetch settings
-    const settingsData = await sb('GET', 'settings', null, '?select=*');
-    settingsData.forEach(s => settings[s.key] = s.value);
-    
-    // Build stars
-    const starsEl = document.getElementById('stars');
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement('span');
-      star.className = 'star';
-      star.textContent = '☆';
-      star.onclick = () => setRating(i);
-      starsEl.appendChild(star);
-    }
-    
-    showStep('step-review');
-  } catch (e) {
-    showError('Something went wrong: ' + e.message);
-  }
-}
-
-function showError(msg) {
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
   document.getElementById('loading').classList.add('hidden');
-  document.getElementById('error').textContent = msg;
-  document.getElementById('error').classList.remove('hidden');
+  window.scrollTo(0,0);
 }
 
-function showStep(id) {
-  document.getElementById('loading').classList.add('hidden');
-  ['step-review', 'step-share', 'step-referral', 'step-done'].forEach(s => {
-    document.getElementById(s).classList.toggle('hidden', s !== id);
+// Stars
+function buildStars(){
+  const el=document.getElementById('stars');
+  for(let i=1;i<=5;i++){
+    const s=document.createElement('span');
+    s.className='star off';s.textContent='★';
+    s.onclick=()=>setRating(i);el.appendChild(s);
+  }
+}
+function setRating(r){
+  rating=r;
+  document.querySelectorAll('.star').forEach((s,i)=>{
+    s.classList.toggle('on',i<r);s.classList.toggle('off',i>=r);
+  });
+}
+function setRec(v){
+  recommend=v;
+  document.querySelectorAll('.rec-btn').forEach(b=>{
+    b.classList.toggle('sel',(b.dataset.val==='yes'&&v)||(b.dataset.val==='no'&&!v));
   });
 }
 
-function setRating(r) {
-  rating = r;
-  document.querySelectorAll('.star').forEach((el, i) => {
-    el.textContent = i < r ? '★' : '☆';
-    el.classList.toggle('active', i < r);
-    el.style.color = i < r ? '#f59e0b' : '#cbd5e1';
-  });
+async function submitReview(){
+  if(!rating){alert('Please tap a star rating');return}
+  if(recommend===null){alert('Would you recommend us?');return}
+  const btn=document.getElementById('btn-submit');btn.disabled=true;btn.textContent='Sending...';
+  try{
+    await rpc('submit_review',{p_review_id:reviewId,p_rating:rating,p_would_recommend:recommend,p_note:document.getElementById('note').value||null});
+    showReviewSites();
+  }catch(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent='Submit'}
 }
 
-function setRecommend(val) {
-  wouldRecommend = val;
-  document.querySelectorAll('.recommend-btn').forEach((btn, i) => {
-    btn.classList.toggle('selected', (i === 0 && val) || (i === 1 && !val));
+function showReviewSites(){
+  const el=document.getElementById('sites');el.innerHTML='';
+  const sites=[
+    {key:'google',icon:'🔍',label:'Google',url:'google_review_url',en:'google_review_enabled'},
+    {key:'facebook',icon:'📘',label:'Facebook',url:'facebook_review_url',en:'facebook_review_enabled'},
+    {key:'yelp',icon:'⭐',label:'Yelp',url:'yelp_review_url',en:'yelp_review_enabled'},
+  ];
+  let any=false;
+  sites.forEach(s=>{
+    if(settings[s.en]==='true'&&settings[s.url]){
+      any=true;
+      const a=document.createElement('a');a.className='site-link';a.href=settings[s.url];a.target='_blank';
+      a.innerHTML=`<span class="icon">${s.icon}</span>Post on ${s.label}`;
+      a.onclick=()=>rpc('log_review_post',{p_review_id:reviewId,p_platform:s.key});
+      el.appendChild(a);
+    }
   });
+  any?show('s2'):goReferrals();
 }
 
-async function submitReview() {
-  if (rating === 0) { alert('Please select a rating'); return; }
-  if (wouldRecommend === null) { alert('Please tell us if you\'d recommend us'); return; }
-  
-  const btn = document.getElementById('submit-review');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-  
-  try {
-    await rpc('submit_review', {
-      p_review_id: reviewId,
-      p_rating: rating,
-      p_would_recommend: wouldRecommend,
-      p_note: document.getElementById('note').value || null,
+function goReferrals(){
+  picked=[];renderPicked();
+  document.getElementById('consent').checked=false;
+  document.getElementById('contact-area').classList.add('hidden');
+  const mr=document.getElementById('manual-rows');mr.innerHTML='';
+  // Detect contact picker
+  const hasAPI='contacts' in navigator&&'ContactsManager' in window;
+  document.getElementById('picker-btn').classList.toggle('hidden',!hasAPI);
+  document.getElementById('or-divider').classList.toggle('hidden',!hasAPI);
+  // Always add manual rows
+  for(let i=0;i<3;i++)addManualRow();
+  show('s3');
+}
+
+function toggleConsent(){
+  document.getElementById('contact-area').classList.toggle('hidden',!document.getElementById('consent').checked);
+}
+
+function addManualRow(){
+  const d=document.createElement('div');d.className='manual-row';
+  d.innerHTML=`<input type="text" placeholder="Name"><input type="tel" placeholder="Phone"><button class="x-btn" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('manual-rows').appendChild(d);
+}
+
+async function pickContacts(){
+  try{
+    const c=await navigator.contacts.select(['name','tel'],{multiple:true});
+    c.slice(0,3).forEach(x=>{
+      const name=(x.name&&x.name[0])||'';const phone=(x.tel&&x.tel[0])||'';
+      if(name&&phone)picked.push({name,phone});
     });
-    
-    // Show share step with enabled review sites
-    const sitesEl = document.getElementById('review-sites');
-    sitesEl.innerHTML = '';
-    
-    const sites = [
-      { key: 'google', icon: '🔍', label: 'Google', urlKey: 'google_review_url', enableKey: 'google_review_enabled' },
-      { key: 'facebook', icon: '📘', label: 'Facebook', urlKey: 'facebook_review_url', enableKey: 'facebook_review_enabled' },
-      { key: 'yelp', icon: '⭐', label: 'Yelp', urlKey: 'yelp_review_url', enableKey: 'yelp_review_enabled' },
-    ];
-    
-    let hasSites = false;
-    sites.forEach(site => {
-      if (settings[site.enableKey] === 'true' && settings[site.urlKey]) {
-        hasSites = true;
-        const a = document.createElement('a');
-        a.className = 'site-btn';
-        a.href = settings[site.urlKey];
-        a.target = '_blank';
-        a.innerHTML = `<span class="site-icon">${site.icon}</span> Post on ${site.label}`;
-        a.onclick = () => {
-          rpc('log_review_post', { p_review_id: reviewId, p_platform: site.key });
-        };
-        sitesEl.appendChild(a);
-      }
-    });
-    
-    if (hasSites) {
-      showStep('step-share');
-    } else {
-      showReferralStep();
-    }
-  } catch (e) {
-    alert('Error submitting review: ' + e.message);
-    btn.disabled = false;
-    btn.textContent = 'Submit Review';
-  }
+    renderPicked();
+  }catch(e){if(e.name!=='InvalidStateError')alert('Could not access contacts.')}
 }
 
-function toggleReferralForm() {
-  const checked = document.getElementById('consent-check').checked;
-  document.getElementById('referral-form-area').style.display = checked ? 'block' : 'none';
+function renderPicked(){
+  const el=document.getElementById('picked-list');
+  if(!picked.length){el.innerHTML='';return}
+  el.innerHTML='<p style="font-weight:600;font-size:14px;margin-bottom:8px">You picked:</p>'+
+    picked.map((c,i)=>`<div class="picked-item"><div><span class="name">${c.name}</span><br><span class="phone">${c.phone}</span></div><button class="rm" onclick="picked.splice(${i},1);renderPicked()">✕</button></div>`).join('');
 }
 
-let pickedContacts = [];
-
-async function pickContacts() {
-  // Check if Contact Picker API is supported
-  if ('contacts' in navigator && 'ContactsManager' in window) {
-    try {
-      const contacts = await navigator.contacts.select(
-        ['name', 'tel'],
-        { multiple: true }
-      );
-      // Limit to 5
-      pickedContacts = contacts.slice(0, 5).map(c => ({
-        name: (c.name && c.name[0]) || '',
-        phone: (c.tel && c.tel[0]) || ''
-      })).filter(c => c.name && c.phone);
-      
-      displayPickedContacts();
-    } catch (err) {
-      if (err.name !== 'InvalidStateError') {
-        alert('Could not access contacts. Please enter them manually below.');
-      }
-    }
-  } else {
-    // Fallback: show a friendly message
-    alert('Contact picker is not supported on this browser. Please enter names manually below.');
-    document.getElementById('pick-contacts-btn').style.display = 'none';
-  }
-}
-
-function displayPickedContacts() {
-  const container = document.getElementById('selected-contacts');
-  if (pickedContacts.length === 0) {
-    container.innerHTML = '';
-    return;
-  }
-  container.innerHTML = '<p style="font-weight:600; color:#1e3a5f; margin-bottom:8px;">Selected contacts:</p>' +
-    pickedContacts.map((c, i) => `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#f0f7ff; border-radius:8px; padding:10px 12px; margin-bottom:6px;">
-        <span style="font-weight:500;">${c.name}</span>
-        <span style="color:#64748b; font-size:13px;">${c.phone}</span>
-        <button onclick="removePickedContact(${i})" style="background:none; border:none; color:#ef4444; font-size:18px; cursor:pointer;">✕</button>
-      </div>
-    `).join('');
-}
-
-function removePickedContact(i) {
-  pickedContacts.splice(i, 1);
-  displayPickedContacts();
-}
-
-function showReferralStep() {
-  const list = document.getElementById('referral-list');
-  list.innerHTML = '';
-  pickedContacts = [];
-  document.getElementById('selected-contacts').innerHTML = '';
-  document.getElementById('consent-check').checked = false;
-  document.getElementById('referral-form-area').style.display = 'none';
-  // Show/hide contact picker button based on support
-  const pickBtn = document.getElementById('pick-contacts-btn');
-  if (!('contacts' in navigator && 'ContactsManager' in window)) {
-    pickBtn.style.display = 'none';
-  }
-  addReferralRow();
-  showStep('step-referral');
-}
-
-function addReferralRow() {
-  const list = document.getElementById('referral-list');
-  const row = document.createElement('div');
-  row.className = 'referral-entry';
-  row.innerHTML = `
-    <input type="text" placeholder="Friend's name" class="ref-name">
-    <input type="tel" placeholder="Phone number" class="ref-phone">
-    <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-  `;
-  list.appendChild(row);
-}
-
-async function submitReferrals() {
-  // Combine picked contacts + manually entered ones
-  const rows = document.querySelectorAll('.referral-entry');
-  const referrals = [...pickedContacts];
-  rows.forEach(row => {
-    const name = row.querySelector('.ref-name').value.trim();
-    const phone = row.querySelector('.ref-phone').value.trim();
-    if (name && phone) referrals.push({ name, phone });
+async function submitReferrals(){
+  const refs=[...picked];
+  document.querySelectorAll('.manual-row').forEach(r=>{
+    const n=r.querySelector('input[type="text"]').value.trim();
+    const p=r.querySelector('input[type="tel"]').value.trim();
+    if(n&&p)refs.push({name:n,phone:p});
   });
-  
-  if (referrals.length === 0) {
-    showFinalStep();
-    return;
-  }
-  
-  const btn = document.getElementById('submit-referrals');
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-  
-  try {
-    // Get customer from review to link referrals
-    const inserts = referrals.map(r => ({
-      name: r.name,
-      phone: r.phone,
-      ref_customer_id: reviewData.customer_id,
-      review_id: reviewId,
-      status: 'new',
-      // assigned_rep_id will be matched by phone or assigned by admin
-    }));
-    
-    // Also try to auto-assign to the same rep as the customer
-    const customers = await sb('GET', 'customers', null, `?id=eq.${reviewData.customer_id}&select=rep_id`);
-    if (customers && customers[0] && customers[0].rep_id) {
-      inserts.forEach(i => i.assigned_rep_id = customers[0].rep_id);
-    }
-    
-    await rpc('submit_referrals', { referrals: inserts });
-    showFinalStep();
-  } catch (e) {
-    alert('Error submitting referrals: ' + e.message);
-    btn.disabled = false;
-    btn.textContent = 'Send Referrals';
-  }
+  if(!refs.length){goDone();return}
+  const btn=document.getElementById('btn-send-refs');btn.disabled=true;btn.textContent='Sending...';
+  try{
+    const inserts=refs.map(r=>({name:r.name,phone:r.phone,ref_customer_id:reviewData.customer_id,review_id:reviewId,status:'new'}));
+    try{
+      const cust=await sb('GET','customers',null,`?id=eq.${reviewData.customer_id}&select=rep_id`);
+      if(cust&&cust[0]&&cust[0].rep_id)inserts.forEach(i=>i.assigned_rep_id=cust[0].rep_id);
+    }catch(e){}
+    await rpc('submit_referrals',{referrals:inserts});
+    goDone();
+  }catch(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent='Send these to Brian'}
 }
 
-async function showFinalStep() {
-  showStep('step-done');
-  await loadExtraLink();
+async function goDone(){
+  show('s4');
+  try{
+    if(!settings.extra_link_url){
+      const sd=await sb('GET','settings',null,'?select=*');
+      sd.forEach(s=>settings[s.key]=s.value);
+    }
+    if(settings.extra_link_url&&settings.extra_link_url!=='https://example.com'){
+      const l=document.getElementById('extra-link');
+      l.href=settings.extra_link_url;l.textContent=settings.extra_link_label||'Learn More →';l.classList.remove('hidden');
+    }
+  }catch(e){}
 }
 
-async function loadExtraLink() {
-  try {
-    if (!settings.extra_link_url) {
-      const settingsData = await sb('GET', 'settings', null, '?select=*');
-      settingsData.forEach(s => settings[s.key] = s.value);
-    }
-    if (settings.extra_link_url && settings.extra_link_url !== 'https://example.com') {
-      const link = document.getElementById('extra-link');
-      link.href = settings.extra_link_url;
-      link.textContent = settings.extra_link_label || 'Learn More →';
-      link.classList.remove('hidden');
-    }
-  } catch (e) { /* ignore */ }
+async function init(){
+  const params=new URLSearchParams(window.location.search);
+  const pathParts=window.location.pathname.split('/');
+  reviewId=params.get('id')||pathParts[pathParts.length-1];
+  if(!reviewId||reviewId==='index.html'){document.getElementById('loading').innerHTML='<div class="error">Invalid review link.</div>';return}
+  try{
+    const revs=await sb('GET','reviews',null,`?id=eq.${reviewId}&select=*`);
+    if(!revs||!revs.length){document.getElementById('loading').innerHTML='<div class="error">Review not found.</div>';return}
+    reviewData=revs[0];
+    if(reviewData.completed_at){show('s4');await goDone();return}
+    const sd=await sb('GET','settings',null,'?select=*');
+    sd.forEach(s=>settings[s.key]=s.value);
+    buildStars();show('s1');
+  }catch(e){document.getElementById('loading').innerHTML=`<div class="error">Something went wrong: ${e.message}</div>`}
 }
-
 init();
 </script>
 </body>
