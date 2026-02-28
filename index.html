@@ -158,7 +158,7 @@ const SB_URL='https://balgzympfreorfixmoko.supabase.co';
 const SB_KEY='sb_publishable_xvwbxdUMJ9AUjag_lBPZJw_Kw6eRqwu';
 const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
-let reviewId,rating=0,recommend=null,settings={},reviewData=null;
+let reviewId,rating=0,recommend=null,settings={},reviewData=null,orgLinks=null;
 
 async function sb(method,table,body,q=''){
   const r=await fetch(`${SB_URL}/rest/v1/${table}${q}`,{method,headers:{...H,'Prefer':method==='POST'?'return=representation':undefined},body:body?JSON.stringify(body):undefined});
@@ -210,20 +210,31 @@ async function submitReview(){
   }catch(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent='Submit'}
 }
 
-function showReviewSites(){
+async function showReviewSites(){
   const el=document.getElementById('sites');el.innerHTML='';
+  // Try org-specific links first
+  try{
+    const ol=await rpc('get_review_org_links',{p_review_id:reviewId});
+    if(ol&&ol.success){
+      orgLinks=ol;
+    }
+  }catch(e){}
   const sites=[
     {key:'google',icon:'🔍',label:'Google',url:'google_review_url',en:'google_review_enabled'},
     {key:'facebook',icon:'📘',label:'Facebook',url:'facebook_review_url',en:'facebook_review_enabled'},
     {key:'yelp',icon:'⭐',label:'Yelp',url:'yelp_review_url',en:'yelp_review_enabled'},
+    {key:'twitter',icon:'🐦',label:'Twitter / X',url:'twitter_review_url',en:'twitter_review_enabled'},
+    {key:'linkedin',icon:'💼',label:'LinkedIn',url:'linkedin_review_url',en:'linkedin_review_enabled'},
   ];
+  const src=orgLinks||settings;
   let any=false;
   sites.forEach(s=>{
-    if(settings[s.en]==='true'&&settings[s.url]){
+    const isOn=src[s.en]===true||src[s.en]==='true';
+    const u=src[s.url];
+    if(isOn&&u){
       any=true;
-      const a=document.createElement('a');a.className='site-link';a.href=settings[s.url];a.target='_blank';
+      const a=document.createElement('a');a.className='site-link';a.href=u;a.target='_blank';
       a.innerHTML=`<span class="icon">${s.icon}</span>Post on ${s.label}`;
-      a.onclick=()=>rpc('log_review_post',{p_review_id:reviewId,p_platform:s.key});
       el.appendChild(a);
     }
   });
