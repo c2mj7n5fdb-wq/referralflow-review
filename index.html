@@ -118,33 +118,27 @@ textarea{min-height:80px}
     </div>
   </div>
 
-  <!-- Screen 3: Referrals -->
+  <!-- Screen 3: Referrals (SMS-based) -->
   <div id="s3" class="screen">
     <div class="card">
       <div class="emoji-hero">🤝</div>
-      <h1>Want to help a friend?</h1>
-      <p class="subtitle">Pick 1–3 contacts who might need coverage</p>
+      <h1>Know someone who could use Brian's services?</h1>
+      <p class="subtitle">Send them a quick text — it takes 5 seconds</p>
 
-      <div class="consent-box">
-        <p>By sharing contacts below, I confirm I have permission from these individuals to share their info, and I consent to having them contacted on my behalf.</p>
-        <label class="consent-label">
-          <input type="checkbox" id="consent" onchange="toggleConsent()">
-          I agree
-        </label>
+      <button class="btn btn-primary" id="btn-text" onclick="textAFriend()" style="margin-top:20px;background:linear-gradient(135deg,#2563eb,#0ea5e9);font-size:18px">📱 Text a Friend</button>
+
+      <div id="share-area" class="hidden" style="margin-top:18px">
+        <p style="text-align:center;color:#64748b;font-size:14px;margin-bottom:10px">Or share via:</p>
+        <button class="btn btn-secondary" id="btn-copy" onclick="copyLink()">📋 Copy Link</button>
+        <p id="copy-confirm" class="hidden" style="text-align:center;color:#22c55e;font-size:13px;font-weight:600;margin-top:8px">✓ Copied!</p>
       </div>
 
-      <div id="contact-area" class="picker-area hidden">
-        <button class="btn btn-primary" id="picker-btn" onclick="pickContacts()" style="margin-top:0;background:linear-gradient(135deg,#2563eb,#0ea5e9)">📱 Choose from Contacts</button>
-        <div class="or-divider" id="or-divider">— or enter manually —</div>
-        <div class="manual-rows" id="manual-rows"></div>
-
-        <div class="picked-list" id="picked-list"></div>
-
-        <button class="btn btn-primary" id="btn-send-refs" onclick="submitReferrals()">Send these to Brian</button>
+      <div class="consent-box" style="margin-top:18px">
+        <p>By sharing this link, you're recommending Brian's services to people you know.</p>
       </div>
 
-      <p class="privacy-note">🔒 We only share the names you pick — no full access to your contacts, no data sold. Opt out anytime.</p>
-      <button class="btn btn-skip" onclick="goDone()">No worries — thanks!</button>
+      <p class="privacy-note">🔒 We only see who clicks your link — we never access your contacts.</p>
+      <button class="btn btn-skip" onclick="goDone()">No thanks</button>
     </div>
   </div>
 
@@ -164,7 +158,7 @@ const SB_URL='https://balgzympfreorfixmoko.supabase.co';
 const SB_KEY='sb_publishable_xvwbxdUMJ9AUjag_lBPZJw_Kw6eRqwu';
 const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
-let reviewId,rating=0,recommend=null,settings={},reviewData=null,picked=[];
+let reviewId,rating=0,recommend=null,settings={},reviewData=null;
 
 async function sb(method,table,body,q=''){
   const r=await fetch(`${SB_URL}/rest/v1/${table}${q}`,{method,headers:{...H,'Prefer':method==='POST'?'return=representation':undefined},body:body?JSON.stringify(body):undefined});
@@ -236,66 +230,40 @@ function showReviewSites(){
   any?show('s2'):goReferrals();
 }
 
+let referralLink='';
+
 function goReferrals(){
-  picked=[];renderPicked();
-  document.getElementById('consent').checked=false;
-  document.getElementById('contact-area').classList.add('hidden');
-  const mr=document.getElementById('manual-rows');mr.innerHTML='';
-  // Detect contact picker
-  const hasAPI='contacts' in navigator&&'ContactsManager' in window;
-  document.getElementById('picker-btn').classList.toggle('hidden',!hasAPI);
-  document.getElementById('or-divider').classList.toggle('hidden',!hasAPI);
-  // Always add manual rows
-  for(let i=0;i<3;i++)addManualRow();
   show('s3');
 }
 
-function toggleConsent(){
-  document.getElementById('contact-area').classList.toggle('hidden',!document.getElementById('consent').checked);
-}
-
-function addManualRow(){
-  const d=document.createElement('div');d.className='manual-row';
-  d.innerHTML=`<input type="text" placeholder="Name"><input type="tel" placeholder="Phone"><button class="x-btn" onclick="this.parentElement.remove()">✕</button>`;
-  document.getElementById('manual-rows').appendChild(d);
-}
-
-async function pickContacts(){
+async function textAFriend(){
+  const btn=document.getElementById('btn-text');
+  btn.disabled=true;btn.textContent='Creating link...';
   try{
-    const c=await navigator.contacts.select(['name','tel'],{multiple:true});
-    c.slice(0,3).forEach(x=>{
-      const name=(x.name&&x.name[0])||'';const phone=(x.tel&&x.tel[0])||'';
-      if(name&&phone)picked.push({name,phone});
-    });
-    renderPicked();
-  }catch(e){if(e.name!=='InvalidStateError')alert('Could not access contacts.')}
+    if(!referralLink){
+      const res=await rpc('create_referral_link',{p_review_id:reviewId});
+      if(!res||!res.success){alert(res?.error||'Could not create link');btn.disabled=false;btn.textContent='📱 Text a Friend';return}
+      referralLink='https://c2mj7n5fdb-wq.github.io/referralflow-review/referral.html?ref='+res.code;
+    }
+    const msg='Hey! I just had a great experience with Brian for insurance. If you or anyone you know needs coverage, check him out: '+referralLink;
+    window.location.href='sms:?body='+encodeURIComponent(msg);
+    btn.disabled=false;btn.textContent='📱 Text a Friend';
+    document.getElementById('share-area').classList.remove('hidden');
+  }catch(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent='📱 Text a Friend'}
 }
 
-function renderPicked(){
-  const el=document.getElementById('picked-list');
-  if(!picked.length){el.innerHTML='';return}
-  el.innerHTML='<p style="font-weight:600;font-size:14px;margin-bottom:8px">You picked:</p>'+
-    picked.map((c,i)=>`<div class="picked-item"><div><span class="name">${c.name}</span><br><span class="phone">${c.phone}</span></div><button class="rm" onclick="picked.splice(${i},1);renderPicked()">✕</button></div>`).join('');
-}
-
-async function submitReferrals(){
-  const refs=[...picked];
-  document.querySelectorAll('.manual-row').forEach(r=>{
-    const n=r.querySelector('input[type="text"]').value.trim();
-    const p=r.querySelector('input[type="tel"]').value.trim();
-    if(n&&p)refs.push({name:n,phone:p});
-  });
-  if(!refs.length){goDone();return}
-  const btn=document.getElementById('btn-send-refs');btn.disabled=true;btn.textContent='Sending...';
-  try{
-    const inserts=refs.map(r=>({name:r.name,phone:r.phone,ref_customer_id:reviewData.customer_id,review_id:reviewId,status:'new'}));
+async function copyLink(){
+  if(!referralLink){
     try{
-      const cust=await sb('GET','customers',null,`?id=eq.${reviewData.customer_id}&select=rep_id`);
-      if(cust&&cust[0]&&cust[0].rep_id)inserts.forEach(i=>i.assigned_rep_id=cust[0].rep_id);
+      const res=await rpc('create_referral_link',{p_review_id:reviewId});
+      if(res&&res.success)referralLink='https://c2mj7n5fdb-wq.github.io/referralflow-review/referral.html?ref='+res.code;
     }catch(e){}
-    await rpc('submit_referrals',{referrals:inserts});
-    goDone();
-  }catch(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent='Send these to Brian'}
+  }
+  if(referralLink){
+    try{await navigator.clipboard.writeText(referralLink)}catch(e){prompt('Copy this link:',referralLink);return}
+    document.getElementById('copy-confirm').classList.remove('hidden');
+    setTimeout(()=>document.getElementById('copy-confirm').classList.add('hidden'),2000);
+  }
 }
 
 async function goDone(){

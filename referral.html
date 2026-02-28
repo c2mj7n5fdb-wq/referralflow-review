@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Referral from a Friend</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#e0edff 0%,#f8faff 50%,#fff5f0 100%);color:#1e293b;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+.container{max-width:440px;margin:0 auto;padding:24px 16px;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:center}
+.screen{display:none;animation:fadeUp .4s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#fff;border-radius:20px;padding:28px 24px;box-shadow:0 4px 24px rgba(37,99,235,.08),0 1px 4px rgba(0,0,0,.04)}
+h1{font-size:22px;font-weight:700;text-align:center;line-height:1.3}
+.subtitle{color:#64748b;font-size:15px;text-align:center;margin-top:6px;line-height:1.5}
+.emoji-hero{font-size:56px;text-align:center;margin-bottom:12px}
+label.field-label{display:block;font-weight:600;font-size:14px;margin-bottom:6px;margin-top:18px;color:#334155}
+label .opt{color:#94a3b8;font-weight:400}
+input[type="text"],input[type="tel"],input[type="email"]{width:100%;border:2px solid #e2e8f0;border-radius:12px;padding:14px;font-size:16px;font-family:inherit;transition:border-color .2s;-webkit-appearance:none}
+input:focus{outline:none;border-color:#60a5fa}
+.btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;min-height:52px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3);margin-top:22px}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.privacy-note{font-size:12px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.5}
+.loading{text-align:center;padding:60px 20px;color:#64748b;font-size:16px}
+.error{background:#fef2f2;color:#dc2626;padding:14px;border-radius:14px;text-align:center;font-weight:500}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="loading" class="loading">Loading...</div>
+
+  <!-- Form screen -->
+  <div id="s-form" class="screen">
+    <div class="card">
+      <div class="emoji-hero">👋</div>
+      <h1 id="headline">Hey! Someone thought you'd benefit from Brian's services.</h1>
+      <p class="subtitle">Fill in your info and Brian will reach out — no pressure.</p>
+
+      <label class="field-label">Your name</label>
+      <input type="text" id="f-name" placeholder="First and last name">
+
+      <label class="field-label">Phone number</label>
+      <input type="tel" id="f-phone" placeholder="(555) 123-4567">
+
+      <label class="field-label">Email <span class="opt">(optional)</span></label>
+      <input type="email" id="f-email" placeholder="you@example.com">
+
+      <button class="btn btn-primary" id="btn-submit" onclick="submitForm()">I'm interested — have Brian reach out</button>
+      <p class="privacy-note">🔒 Your info is only shared with Brian. No spam, no data sold.</p>
+    </div>
+  </div>
+
+  <!-- Done screen -->
+  <div id="s-done" class="screen">
+    <div class="card" style="text-align:center">
+      <div class="emoji-hero">🎉</div>
+      <h1>Thanks! Brian will be in touch soon.</h1>
+      <p class="subtitle">He'll reach out within a day or two.</p>
+      <p class="privacy-note">🔒 Your info is only shared with Brian. No spam, no data sold.</p>
+    </div>
+  </div>
+
+  <!-- Error screen -->
+  <div id="s-error" class="screen">
+    <div class="card" style="text-align:center">
+      <div class="emoji-hero">😕</div>
+      <h1>This link has expired or isn't valid</h1>
+      <p class="subtitle">Ask your friend for a new one, or reach out to Brian directly.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://balgzympfreorfixmoko.supabase.co';
+const SB_KEY='sb_publishable_xvwbxdUMJ9AUjag_lBPZJw_Kw6eRqwu';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+let refCode='';
+
+async function rpc(fn,p){
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:H,body:JSON.stringify(p)});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('loading').classList.add('hidden');
+  window.scrollTo(0,0);
+}
+
+async function submitForm(){
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const email=document.getElementById('f-email').value.trim()||null;
+  if(!name){alert('Please enter your name');return}
+  if(!phone){alert('Please enter your phone number');return}
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    const res=await rpc('submit_referral_from_link',{p_code:refCode,p_name:name,p_phone:phone,p_email:email});
+    if(res&&res.success){show('s-done')}
+    else{alert(res?.error||'Something went wrong');btn.disabled=false;btn.textContent="I'm interested — have Brian reach out"}
+  }catch(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent="I'm interested — have Brian reach out"}
+}
+
+async function init(){
+  const params=new URLSearchParams(window.location.search);
+  refCode=params.get('ref')||'';
+  if(!refCode){show('s-error');return}
+  try{
+    const res=await rpc('lookup_referral_link',{p_code:refCode});
+    if(!res||!res.success){show('s-error');return}
+    if(res.customer_name){
+      document.getElementById('headline').textContent=`Hey! ${res.customer_name} thought you'd benefit from Brian's services.`;
+    }
+    show('s-form');
+  }catch(e){show('s-error')}
+}
+init();
+</script>
+</body>
+</html>
